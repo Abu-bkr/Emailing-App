@@ -115,14 +115,17 @@ function archive_email(email) {
           body: JSON.stringify({
             archived: false,
           }),
-        });
+        })
+        .then(()=>{load_mailbox("inbox")});
+
       } else {
         fetch(`/emails/${email.id}`, {
           method: "PUT",
           body: JSON.stringify({
             archived: true,
           }),
-        });
+        })
+        .then(()=>{load_mailbox("archive")});
       }
     });
 }
