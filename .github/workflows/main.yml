@@ -38,12 +38,18 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Debug SSH Setup Before
+      run: ls -la ~/.ssh || echo "No ~/.ssh directory"
+    
     - name: Setup SSH
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+        printf "%s" "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -H example.com >> ~/.ssh/known_hosts
+    
+    - name: Debug SSH Setup After
+      run: ls -la ~/.ssh
     
     - name: Deploy to EC2
       run: |
