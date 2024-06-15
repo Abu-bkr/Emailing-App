@@ -38,15 +38,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
       
-
-    - name: Debug SSH Setup Before
-      run: ls -la ~/.ssh || echo "No ~/.ssh directory"
-      env:
-        EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-    
-
     - name: Setup SSH for EC2
       uses: omarhosny206/setup-ssh-for-ec2@v1.0.0
+      env:
+        EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
       with:
         EC2_SSH_PRIVATE_KEY: $EC2_SSH_PRIVATE_KEY
 
