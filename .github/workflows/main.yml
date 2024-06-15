@@ -44,4 +44,10 @@ jobs:
           EC2_URL: $EC2_URL
     # then you can run commands/scripts directly on the EC2 instance e.g.:
     - name: Create a new file on the EC2 instance with "hello-world"
-      run: ssh -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_URL "echo "hello-world" >> new_file.txt"
+      run: | 
+        ssh -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_URL << 'EOF'
+        sudo docker pull ${{ secrets.DOCKER_USERNAME }}/my_email_app:latest
+        sudo docker stop my_email_app || true
+        sudo docker rm my_email_app || true
+        sudo docker run -d --name my_email_app -p 80:8000 ${{ secrets.DOCKER_USERNAME }}/my_email_app:latest
+        EOF
