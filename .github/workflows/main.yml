@@ -26,7 +26,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: ./mail
-        file: ./mail/Dockerfile
+        file: ./mail/DOCKERFILE
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/my_email_app:latest
 
