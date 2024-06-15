@@ -1,4 +1,4 @@
-name: main
+name: CI/CD Pipeline
 
 on:
   push:
@@ -6,62 +6,47 @@ on:
       - main
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v1
       with:
-        python-version: '3.9'
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Install dependencies
-      run: |
-        python -m venv venv
-        . venv/bin/activate
-        pip install -r requirements.txt
-
-    - name: Run migrations
-      run: |
-        . venv/bin/activate
-        python manage.py migrate
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: ${{ secrets.DOCKER_USERNAME }}/my_email_app:latest
 
   deploy:
-    needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: build
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.9'
-
-    - name: Install dependencies
+    - name: Deploy to EC2
       run: |
-        python -m venv venv
-        . venv/bin/activate
-        pip install -r requirements.txt
-
-    - name: Deploy to Production
-      env:
-        SSH_KEY: ${{ secrets.SSH_KEY }}
-        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-        REMOTE_USER: ${{ secrets.REMOTE_USER }}
-      run: |
-        echo "$SSH_KEY" | tr -d '\r' | ssh-add - > /dev/null
-        ssh -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST << 'EOF'
-          cd /path/to/your/django/project
-          git pull origin main
-          source venv/bin/activate
-          pip install -r requirements.txt
-          python manage.py migrate
-          python manage.py collectstatic --noinput
-          sudo systemctl restart gunicorn
-EOF
+        sudo apt-get update
+        sudo apt-get install -y awscli
+        aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }}
+        aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_KEY }}
+        aws configure set default.region ${{ secrets.AWS_REGION }}
+        
+        ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_KEY }} ec2-user@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+          docker pull ${{ secrets.DOCKER_USERNAME }}/my_email_app:latest
+          docker stop my_email_app || true
+          docker rm my_email_app || true
+          docker run -d --name my_email_app -p 80:80 ${{ secrets.DOCKER_USERNAME }}/my_email_app:latest
+        EOF
