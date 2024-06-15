@@ -43,9 +43,9 @@ jobs:
     
     - name: Setup SSH
       run: |
-        mkdir -p ~/.ssh
+        sudo mkdir -p ~/.ssh
         printf "%s" "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
+        sudo chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -H example.com >> ~/.ssh/known_hosts
     
     - name: Debug SSH Setup After
@@ -60,8 +60,8 @@ jobs:
         aws configure set default.region ${{ secrets.AWS_REGION }}
         
         ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-          docker pull ${{ secrets.DOCKER_USERNAME }}/my_email_app:latest
-          docker stop my_email_app || true
-          docker rm my_email_app || true
-          docker run -d --name my_email_app -p 80:80 ${{ secrets.DOCKER_USERNAME }}/my_email_app:latest
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/my_email_app:latest
+          sudo docker stop my_email_app || true
+          sudo docker rm my_email_app || true
+          sudo docker run -d --name my_email_app -p 80:8000 ${{ secrets.DOCKER_USERNAME }}/my_email_app:latest
         EOF
