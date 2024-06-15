@@ -37,31 +37,19 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      
 
     - name: Debug SSH Setup Before
       run: ls -la ~/.ssh || echo "No ~/.ssh directory"
+      env:
+        EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
     
-    - name: Setup SSH
-      run: |
-        sudo mkdir -p ~/.ssh
-        printf "%s" "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
-        sudo chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H example.com >> ~/.ssh/known_hosts
-    
-    - name: Debug SSH Setup After
-      run: ls -la ~/.ssh
-    
-    - name: Deploy to EC2
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y awscli
-        aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }}
-        aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_KEY }}
-        aws configure set default.region ${{ secrets.AWS_REGION }}
-        
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/my_email_app:latest
-          sudo docker stop my_email_app || true
-          sudo docker rm my_email_app || true
-          sudo docker run -d --name my_email_app -p 80:8000 ${{ secrets.DOCKER_USERNAME }}/my_email_app:latest
-        EOF
+
+    - name: Setup SSH for EC2
+      uses: omarhosny206/setup-ssh-for-ec2@v1.0.0
+      with:
+        EC2_SSH_PRIVATE_KEY: $EC2_SSH_PRIVATE_KEY
+
+    # then you can run commands/scripts directly on the EC2 instance e.g.:
+    - name: Create a new file on the EC2 instance with "hello-world"
+      run: ssh -o StrictHostKeyChecking=no ec2-user@100.29.45.16 "echo "hello-world" >> new_file.txt"
