@@ -1,0 +1,13 @@
+name: Mail
+on: push
+
+job: 
+  run_mail:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run Django mailing app
+        run: |  
+        pip3 install --user django
+        python3 manage.py makemigrations
+        python3 manage.py migrate

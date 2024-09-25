@@ -1,0 +1,51 @@
+{% extends "mail/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <div class="container mx-auto p-4">
+        <h2 class="text-xl font-semibold mb-4">{{ request.user.email }}</h2>
+
+        <div class="space-x-2">
+            <button class="btn btn-sm btn-outline-primary border border-blue-500 text-blue-500 py-1 px-2 rounded hover:bg-blue-100" id="inbox">Inbox</button>
+            <button class="btn btn-sm btn-outline-primary border border-blue-500 text-blue-500 py-1 px-2 rounded hover:bg-blue-100" id="compose">Compose</button>
+            <button class="btn btn-sm btn-outline-primary border border-blue-500 text-blue-500 py-1 px-2 rounded hover:bg-blue-100" id="sent">Sent</button>
+            <button class="btn btn-sm btn-outline-primary border border-blue-500 text-blue-500 py-1 px-2 rounded hover:bg-blue-100" id="archived">Archived</button>
+            <a class="btn btn-sm btn-outline-primary border border-blue-500 text-blue-500 py-1 px-2 rounded hover:bg-blue-100" href="{% url 'logout' %}">Log Out</a>
+        </div>
+        
+        <hr class="my-4 border-gray-300">
+
+        <div id="emails-view" class="p-4 bg-white shadow-md rounded">
+            <!-- Emails content will be displayed here -->
+        </div>
+
+        <div id="show-email" class="p-4 bg-white shadow-md rounded mt-4">
+            <!-- Show individual email details here -->
+        </div>
+
+        <div id="compose-view" class="p-4 bg-white shadow-md rounded mt-4 hidden">
+            <h3 class="text-lg font-semibold mb-4">New Email</h3>
+            <form id="compose-form" method="POST">
+                {% csrf_token %}
+                <div class="form-group my-4">
+                    <label class="block font-medium text-gray-700">From:</label>
+                    <input disabled class="form-control block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" value="{{ request.user.email }}">
+                </div>
+                <div class="form-group my-4">
+                    <label class="block font-medium text-gray-700">To:</label>
+                    <input id="compose-recipients" class="form-control block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="form-group my-4">
+                    <label class="block font-medium text-gray-700">Subject:</label>
+                    <input class="form-control block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" id="compose-subject" placeholder="Subject">
+                </div>
+                <textarea class="form-control block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 my-4" id="compose-body" placeholder="Body"></textarea>
+                <input type="submit" class="btn btn-primary bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 cursor-pointer"/>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'mail/inbox.js' %}"></script>
+{% endblock %}
