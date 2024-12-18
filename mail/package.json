@@ -5,6 +5,8 @@
   },
   "scripts": {
   "dev": "concurrently \"npx tailwindcss -i ./mail/static/mail/tailwindCSS/input.css -o ./mail/static/mail/tailwindCSS/output.css --watch\" \"python manage.py runserver\"",
-  "tailwind":"npx tailwindcss -i ./mail/static/mail/tailwindCSS/input.css -o ./mail/static/mail/tailwindCSS/output.css --watch"
+  "tailwind":"npx tailwindcss -i ./mail/static/mail/tailwindCSS/input.css -o ./mail/static/mail/tailwindCSS/output.css --watch",
+  "django-server": "python manage.py runserver",
+  "django-server-8080": "python manage.py runserver 8080"
 }
 }

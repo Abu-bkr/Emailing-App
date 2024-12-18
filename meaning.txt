@@ -1,0 +1,11 @@
+deprication : the classification of a software feature as obsolete and best avoided, typically because it has been superseded.
+              one of the most noticeable changes is the deprecation of third-party cookies
+              >>> the expression of a negative view of someone or something; criticism or disapproval.<<<
+
+metapackage : A metapackage is a package that creates an installation tree in the Package Manager, or in other words, a package
+              that supports the grouping and installation of multiple packages.              
+              
+intervention : intervention refers to the involvement of human decision-making and input in a process or system.
+
+daemon :  a daemon (pronounced DEE-muhn) is a program that runs continuously as a background process and wakes up to handle 
+          periodic service requests, which often come from remote processes.
