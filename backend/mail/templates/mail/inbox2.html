@@ -1,0 +1,87 @@
+{% extends "mail/layout.html" %}
+{% load static %}
+
+{% block body %}
+  <div id="react-app-container">
+    <!-- React app will be rendered here -->
+  </div>
+
+  <div id="show-email" class="p-4 bg-white shadow-md rounded mt-4 hidden">
+    <!-- Show individual email details here -->
+  </div>
+
+  <div id="compose-view" class="p-4 bg-white shadow-md rounded mt-4 hidden">
+    <h3 class="text-lg font-semibold mb-4">New Email</h3>
+    <form id="compose-form" method="POST">
+      {% csrf_token %}
+      <div class="form-group my-4">
+        <label class="block font-medium text-gray-700">From:</label>
+        <input disabled class="form-control block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" value="{{ request.user.email }}">
+      </div>
+      <div class="form-group my-4">
+        <label class="block font-medium text-gray-700">To:</label>
+        <input id="compose-recipients" class="form-control block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+      </div>
+      <div class="form-group my-4">
+        <label class="block font-medium text-gray-700">Subject:</label>
+        <input class="form-control block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" id="compose-subject" placeholder="Subject">
+      </div>
+      <textarea class="form-control block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 my-4" id="compose-body" placeholder="Body"></textarea>
+      <input type="submit" class="btn btn-primary bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 cursor-pointer"/>
+    </form>
+  </div>
+{% endblock %}
+
+{% block script %}
+  <!-- <script src="{% static 'mail/inbox.js' %}"></script> -->
+  <script>
+    // React code here
+    const { useState, useEffect } = React;
+
+    const Inbox = () => {
+      const [emails, setEmails] = useState([]);
+      const [loading, setLoading] = useState(true);
+
+      useEffect(() => {
+        fetch('/emails/inbox')
+          .then(response => response.json())
+          .then(data => {
+            setEmails(data);
+            setLoading(false);
+          });
+      }, []);
+
+      const loadEmailDetails = (email) => {
+        document.querySelector("#show-email").style.display = "block";
+        // Show the email details here (you can update UI accordingly)
+        const emailDetails = `
+          <h3>Sender: ${email.sender}</h3>
+          <h6>Subject: ${email.subject}</h6>
+          <p>Body: ${email.body}</p>
+          <p>Time: ${email.timestamp}</p>
+        `;
+        document.querySelector("#show-email").innerHTML = emailDetails;
+      };
+
+      if (loading) {
+        return <div>Loading...</div>;
+      }
+
+      return (
+        <div className="space-y-4">
+          {emails.map(email => (
+            <div key={email.id} className={`Email-container bg-light border rounded mx-2 my-2 p-3 ${email.read ? 'bg-warning bg-gradient' : ''}`}>
+              <h3 className="Email-content">Sender: {email.sender}</h3>
+              <h5 className="Email-content">Subject: {email.subject}</h5>
+              <p className="Email-time">{email.timestamp}</p>
+              <button className="text-blue-500 hover:text-blue-700" onClick={() => loadEmailDetails(email)}>View Email</button>
+            </div>
+          ))}
+        </div>
+      );
+    };
+
+    // Render React component to the div with id "react-app-container"
+    ReactDOM.render(<Inbox />, document.getElementById('react-app-container'));
+  </script>
+{% endblock %}
