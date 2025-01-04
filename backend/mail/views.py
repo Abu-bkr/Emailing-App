@@ -13,8 +13,8 @@ def index(request):
 
     # Authenticated users view their inbox
     if request.user.is_authenticated:
-        # return render(request, "mail/inbox.html")
-        return HttpResponseRedirect('http://localhost:5173')
+        return render(request, "mail/inbox.html")
+        # return HttpResponseRedirect('http://localhost:5173')
     
     
 
